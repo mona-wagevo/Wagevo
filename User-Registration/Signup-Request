@@ -1,21 +1,42 @@
-func insertUserIntoTable(userId: UUID, email: String, phone: String, firstName: String, lastName: String, roleId: String, birthday: String, hourlyWage: String) async {
+import Supabase
+
+let supabase = SupabaseClient(
+    supabaseURL: URL(string: "https://your-project-ref.supabase.co")!,
+    supabaseKey: "your-anon-key"
+)
+
+func registerNewUser(email: String, password: String, phone: String, firstName: String, lastName: String, roleId: String, birthday: String, hourlyWage: String) async {
     do {
-        let response = try await supabase.database
-            .from("Users")
-            .insert([
-                "id": userId.uuidString,
-                "email": email,
+        // Step 1: Sign up the user in Supabase Auth
+        let response = try await supabase.auth.signUp(
+            email: email,
+            password: password,
+            data: [
                 "phone": phone,
                 "first_name": firstName,
-                "last_name": lastName,
-                "role_id": roleId,
-                "birthday": birthday,
-                "hourly_wage": hourlyWage
-            ])
-            .execute()
-        
-        print("User inserted into Users table: \(response)")
+                "last_name": lastName
+            ]
+        )
+
+        // Step 2: Insert additional user details into Users table
+        if let userId = response.user?.id {
+            try await supabase.database
+                .from("Users")
+                .insert([
+                    "id": userId.uuidString,
+                    "email": email,
+                    "phone": phone,
+                    "first_name": firstName,
+                    "last_name": lastName,
+                    "role_id": roleId,
+                    "birthday": birthday,
+                    "hourly_wage": hourlyWage
+                ])
+                .execute()
+        }
+
+        print("User signed up and inserted successfully!")
     } catch {
-        print("Error inserting user: \(error)")
+        print("Error signing up: \(error)")
     }
 }
