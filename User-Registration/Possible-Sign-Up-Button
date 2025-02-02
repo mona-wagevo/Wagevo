@@ -1,0 +1,14 @@
+Button("Sign Up") {
+    Task {
+        await registerNewUser(
+            email: "test@example.com",
+            password: "password123",
+            phone: "123-456-7890",
+            firstName: "John",
+            lastName: "Doe",
+            roleId: "1",
+            birthday: "1995-08-15",
+            hourlyWage: "18.50"
+        )
+    }
+}
