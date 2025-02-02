@@ -1,26 +1,21 @@
-import Supabase
-
-let supabase = SupabaseClient(
-    supabaseURL: URL(string: "https://your-project-ref.supabase.co")!,
-    supabaseKey: "your-anon-key"
-)
-
-func signUpUser(email: String, password: String, phone: String, firstName: String, lastName: String, roleId: String, birthday: String, hourlyWage: String) async {
+func insertUserIntoTable(userId: UUID, email: String, phone: String, firstName: String, lastName: String, roleId: String, birthday: String, hourlyWage: String) async {
     do {
-        let response = try await supabase.auth.signUp(
-            email: email,
-            password: password,
-            data: [
+        let response = try await supabase.database
+            .from("Users")
+            .insert([
+                "id": userId.uuidString,
+                "email": email,
                 "phone": phone,
                 "first_name": firstName,
                 "last_name": lastName,
                 "role_id": roleId,
                 "birthday": birthday,
                 "hourly_wage": hourlyWage
-            ]
-        )
-        print("User signed up successfully: \(response)")
+            ])
+            .execute()
+        
+        print("User inserted into Users table: \(response)")
     } catch {
-        print("Error signing up: \(error)")
+        print("Error inserting user: \(error)")
     }
 }
